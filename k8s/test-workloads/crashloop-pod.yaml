@@ -1,0 +1,16 @@
+# A pod that crashes on startup, producing a real CrashLoopBackOff to test against.
+# Mirrors the SRS §11 quickstart command, as a reusable manifest.
+#   kubectl apply -f k8s/test-workloads/crashloop-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: crash-test
+  namespace: default
+  labels:
+    app: crash-test
+spec:
+  restartPolicy: Always
+  containers:
+    - name: app
+      image: busybox
+      command: ["/bin/sh", "-c", "echo crashing; exit 1"]

@@ -1,0 +1,40 @@
+# Minimum RBAC for the incident agent (SRS §5 / Week 8).
+# Read access for investigation; pod delete + deployment scale for safe actions.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: incident-agent
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: incident-agent
+rules:
+  # Investigation (read-only)
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "events", "nodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch"]
+  # Safe remediation
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["delete"]            # restart_pod
+  - apiGroups: ["apps"]
+    resources: ["deployments/scale"]
+    verbs: ["update", "patch"]   # scale_deployment
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: incident-agent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: incident-agent
+subjects:
+  - kind: ServiceAccount
+    name: incident-agent
+    namespace: default

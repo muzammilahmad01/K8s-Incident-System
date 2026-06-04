@@ -1,0 +1,21 @@
+# A pod that allocates more memory than its limit, producing an OOMKilled event.
+#   kubectl apply -f k8s/test-workloads/oomkilled-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: oom-test
+  namespace: default
+  labels:
+    app: oom-test
+spec:
+  restartPolicy: Always
+  containers:
+    - name: hog
+      image: polinux/stress
+      resources:
+        limits:
+          memory: "32Mi"
+        requests:
+          memory: "32Mi"
+      command: ["stress"]
+      args: ["--vm", "1", "--vm-bytes", "128M", "--vm-hang", "1"]

@@ -1,0 +1,53 @@
+# Deploys the agent into the cluster in --watch mode (SRS §5 / Week 8).
+# Build + load the image into kind first:
+#   docker build -t k8s-incident-agent:dev .
+#   kind load docker-image k8s-incident-agent:dev --name incident-lab
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: incident-agent
+  namespace: default
+  labels:
+    app: incident-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: incident-agent
+  template:
+    metadata:
+      labels:
+        app: incident-agent
+    spec:
+      serviceAccountName: incident-agent
+      containers:
+        - name: agent
+          image: k8s-incident-agent:dev
+          imagePullPolicy: IfNotPresent
+          args: ["watch"]
+          envFrom:
+            - secretRef:
+                name: incident-agent-secrets   # GROQ_API_KEY etc.
+          env:
+            - name: IN_CLUSTER
+              value: "true"
+            # In-cluster service DNS for the kube-prometheus-stack install.
+            - name: ALERTMANAGER_URL
+              value: "http://kube-prom-alertmanager.default.svc:9093"
+            - name: PROMETHEUS_URL
+              value: "http://kube-prom-prometheus.default.svc:9090"
+          volumeMounts:
+            - name: runbooks
+              mountPath: /app/runbooks
+              readOnly: true
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"   # NFR: < 512 MB
+              cpu: "500m"
+      volumes:
+        - name: runbooks
+          configMap:
+            name: incident-agent-runbooks

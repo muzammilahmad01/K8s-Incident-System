@@ -1,0 +1,15 @@
+[
+  {
+    "status": { "state": "active" },
+    "labels": {
+      "alertname": "KubePodCrashLooping",
+      "namespace": "default",
+      "pod": "crash-test",
+      "severity": "warning",
+      "reason": "CrashLoopBackOff"
+    },
+    "annotations": {
+      "description": "Pod default/crash-test is restarting repeatedly (CrashLoopBackOff)."
+    }
+  }
+]

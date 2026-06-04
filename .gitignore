@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# uv
+uv.lock
+
+# Secrets / local config
+.env
+
+# Vector store + outputs
+.chroma/
+incident-reports.jsonl
+
+# OS / editor
+.DS_Store

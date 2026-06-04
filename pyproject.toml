@@ -1,0 +1,58 @@
+[project]
+name = "k8s-incident-agent"
+version = "0.1.0"
+description = "LangGraph AI agent that triages Kubernetes incidents with persistent incident memory"
+authors = [{ name = "Muzammil" }]
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+    # Agent framework
+    "langgraph>=0.2,<0.3",
+    "langchain>=0.3,<0.4",
+    "langchain-core>=0.3,<0.4",
+    # Groq backend (default). OpenAI-compatible; langchain-groq wraps it.
+    "langchain-groq>=0.2",
+    # Vector store + local embeddings (no cloud embedding API needed)
+    "chromadb>=0.5",
+    "sentence-transformers>=3.0",
+    # Kubernetes + Prometheus access
+    "kubernetes>=31.0",
+    "httpx>=0.27",
+    # Config / CLI / output
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "python-dotenv>=1.0",
+    "typer>=0.12",
+    "rich>=13.7",
+]
+
+[project.optional-dependencies]
+# Optional local LLM fallback (Ollama). Not installed by default.
+ollama = ["langchain-ollama>=0.2"]
+# Optional: use OpenAI directly instead of Groq.
+openai = ["langchain-openai>=0.2"]
+dev = [
+    "pytest>=8.2",
+    "pytest-mock>=3.14",
+    "ruff>=0.5",
+]
+
+[project.scripts]
+# `incident-agent --once` / `incident-agent --watch`
+incident-agent = "agent.__main__:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["agent"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
